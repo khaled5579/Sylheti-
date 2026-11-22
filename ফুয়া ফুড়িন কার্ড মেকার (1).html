@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ফুয়া ফুড়িন কার্ড মেকার</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;700&family=Tiro+Bangla&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f0f2f5;--panel:#fff;--ink:#1c1e21;--mute:#65676b;--line:#dadde1;--acc:#1877f2;--accInk:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#18191a;--panel:#242526;--ink:#e4e6eb;--mute:#b0b3b8;--line:#3e4042;--acc:#2d88ff;--accInk:#fff}}
+:root[data-theme="dark"]{--bg:#18191a;--panel:#242526;--ink:#e4e6eb;--mute:#b0b3b8;--line:#3e4042;--acc:#2d88ff;--accInk:#fff}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;line-height:1.5}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:1.25rem;margin:4px 0 14px;font-weight:700}
+.stage,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px}
+.panel{padding:14px;margin-top:12px}
+canvas{display:block;width:100%;height:auto;border-radius:8px}
+label{display:block;font-size:.85rem;color:var(--mute);margin:12px 0 4px}
+label:first-child{margin-top:0}
+textarea,input[type=text],select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px}
+textarea{min-height:96px;resize:vertical;font-size:1.05rem}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tabs button{font:inherit;font-weight:700;padding:11px 4px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.tabs button[aria-pressed=true]{border-color:var(--acc);background:var(--acc);color:var(--accInk)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sw{display:none;gap:10px}
+.sw button{width:44px;height:44px;border-radius:50%;border:3px solid var(--line);cursor:pointer}
+.sw button[aria-pressed=true]{border-color:var(--acc)}
+.chk{display:flex;align-items:center;gap:8px;margin-top:12px;color:var(--ink);font-size:.95rem}
+.chk input{width:20px;height:20px;accent-color:var(--acc)}
+.btn{font:inherit;font-weight:700;width:100%;padding:14px;border-radius:12px;border:0;background:var(--acc);color:var(--accInk);cursor:pointer;margin-top:10px;font-size:1.05rem}
+.btn.alt{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:12px;z-index:5;overflow:auto}
+#modal img{max-width:100%;max-height:75vh;border-radius:8px}
+#modal p{color:#fff;margin:0;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<h1>আমরা সিলেটি ফুয়া ফুড়িন · কার্ড মেকার</h1>
+<div class="stage"><canvas id="c" width="1080" height="1080" aria-label="কার্ড প্রিভিউ"></canvas></div>
+<div class="panel">
+<div class="row"><button class="btn" id="dl" style="margin:0">ডাউনলোড</button><button class="btn alt" id="share" style="margin:0">শেয়ার</button></div>
+</div>
+<div class="panel">
+<label>কার্ডের ডিজাইন</label>
+<div class="tabs" id="tabs">
+<button data-t="sad">Sad</button><button data-t="funny">Funny</button><button data-t="sarcasm">Sarcasm</button>
+<button data-t="girl">মেয়েদের</button><button data-t="minimal">Minimal</button><button data-t="news">News</button>
+<button data-t="gold">Gold</button>
+</div>
+<label>ব্যাকগ্রাউন্ড রঙ</label>
+<div class="sw" id="sw"></div>
+<label for="txt">পোস্টের লেখা (অটো বা নিজে লেখো)</label>
+<textarea id="txt"></textarea>
+<button class="btn alt" id="auto" style="margin-top:8px">নতুন অটো লেখা</button>
+<label for="author">লেখকের নাম (কার্ডের এক পাশে ছোট করে আসবে)</label>
+<input id="author" type="text" placeholder="যেমন: জুলা দালাল" autocomplete="name">
+<label for="file">গ্রুপের ছবি (ব্যাকগ্রাউন্ড)</label>
+<input id="file" type="file" accept="image/*">
+<div class="row">
+<div><label for="font">ফন্ট</label><select id="font"><option value="auto">ডিজাইন অনুযায়ী</option><option value="hind">সাধারণ</option><option value="tiro">বইয়ের মতো</option></select></div>
+<div><label for="align">লেখা সাজানো</label><select id="align"><option value="auto">ডিজাইন অনুযায়ী</option><option value="center">মাঝখানে</option><option value="left">বাম দিকে</option></select></div>
+</div>
+<div class="row">
+<div><label for="ratio">সাইজ</label><select id="ratio"><option value="1080">Square 1:1</option><option value="1350">Portrait 4:5</option></select></div>
+<div><label for="grp">গ্রুপের নাম</label><input id="grp" type="text" value="আমরা সিলেটি ফুয়া ফুড়িন"></div>
+</div>
+<label class="chk"><input id="showgrp" type="checkbox" checked> নিচে গ্রুপের নাম দেখাও</label>
+<label class="chk"><input id="wm" type="checkbox" checked> সারা কার্ডে গ্রুপের নাম (কেটে অন্য গ্রুপে দেওয়া যাবে না)</label>
+<label for="size">লেখার সাইজ</label><input id="size" type="range" min="40" max="130" value="76">
+<label for="dark">ছবি কতটা অন্ধকার</label><input id="dark" type="range" min="0" max="80" value="20">
+<label for="zoom">ছবি জুম</label><input id="zoom" type="range" min="100" max="250" value="100">
+</div>
+</main>
+<div id="modal"><p>ছবির উপর চেপে ধরে "Save image" করো</p><img id="out" alt="কার্ড"><button class="btn alt" id="close" style="max-width:240px">বন্ধ করো</button></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const c=$('c'),ctx=c.getContext('2d');
+let img=null,theme='sad',auto=true,pal=0,last=-1,dlcap=null;
+const BANK={
+sad:['সবাই বলে সময় সব ঘা সারায়।\nসময় আইছে, ঘা রইয়া গেছে।','যারে নিজের ভাবছিলাম,\nসে খালি আমার সময়টা নিজের ভাবছিল।','মনডা ভালা নাই,\nকিন্তু কেউ জিগায় না, তাই কইও না।','অনেক মানুষ আইছে জীবনে,\nথাকছে খালি স্মৃতি।','চুপ থাকা মানে ভালা থাকা না।'],
+funny:['বিয়ার আগে কইছিল চান্দ আইনা দিমু,\nএখন বাজারের ব্যাগই আমারে টানাইতাছে','সিলেটের মানুষ রাগ করলে\nচা খাইয়া ঠান্ডা হয়','ডায়েট শুরু করুম কাইল,\nআজকা বিরিয়ানির শেষ দিন।','মোবাইলে চার্জ নাই,\nপকেটেও টাকা নাই, মিল আছে।','কইছিলাম ১০ মিনিটে আইতাছি,\nএখনো ঘর থেকে বাইর হই নাই।'],
+sarcasm:['হ, আপনে তো সবকিছু জানেন।\nগুগলও আপনার কাছে ক্লাস করে।','বাহ! কী সুন্দর যুক্তি,\nশুইনা নিজেরই জ্ঞান বাড়ি গেল।','আপনার পরামর্শ খুব দামি,\nতাই জমাইয়া রাখলাম, ব্যবহার করুম না।','সবাই ব্যস্ত, শুধু আমার পোস্টে\nকমেন্ট করার সময় আছে।','ধন্যবাদ জ্ঞান দেওয়ার জন্য,\nআমার ঘাটতিটা আজই পূরণ হইল।'],
+minimal:['ভালা থাকিও, সুখে থাকিও,\nআর মাঝে মাঝে নিজের খবরও লইও।','সহজ থাকো,\nসবকিছু কঠিন করার দরকার নাই।','আজকের দিনডা ভালা কাটুক।','কম কও, ভালা কও।','নিজের গতিতে চলো,\nপৌঁছাইবাই ঠিকই।'],
+news:['সিলেটের চায়ের দোকানে আড্ডা চলতাছে, শেষ হওয়ার কোনো লক্ষণ নাই','বৃষ্টি নামলেই সিলেটের রাস্তায় নদী, নৌকা নামানোর দাবি','ফুয়া ফুড়িনদের আড্ডায় আজও কেউ সময়মতো আসে নাই','সিলেটে আজ বিরিয়ানির দাম নিয়া তুমুল বিতর্ক','গ্রুপে নতুন পোস্ট, সদস্যদের মাঝে হইচই'],
+gold:['ধৈর্য ধরো, সময় সবার আসে।\nআজকের অন্ধকারই কালকের আলোর শুরু।','যে পড়ে, সে ওঠেও।','আল্লাহর উপর ভরসা রাখো,\nসব ঠিক হইয়া যাইবো।','চেষ্টা থামাইও না,\nসফলতা দেরিতে আইলেও আসে।','শুকরিয়া করো,\nযা আছে তাই অনেক।'],
+fbpost:['আইজ সিলেটের আবহাওয়া কেমন?\nআপনারা কী করতাছেন, কমেন্টে জানান।','একটা প্রশ্ন: সিলেটের সবচেয়ে ভালা চা কোথায় পাওয়া যায়?','গ্রুপের সবাইরে সালাম।\nআজকের দিনডা ভালা কাটুক।','কে কে আজ আড্ডায় আসবা?\nকমেন্টে জানাও।','ছোটবেলার সিলেট মনে পড়ে কার কার?'],
+fbg:['আজকের দিনডা তোমার হইবো!','হাসো, কারণ জীবন ছোট।','ভালা মানুষ খুঁজতাছো?\nনিজে ভালা হও।','সিলেটি হইয়া জন্মাইছি,\nএইডাই গর্ব।','কাইল কী হইবো কেউ জানে না,\nআজকের দিনটা উপভোগ করো।'],
+girl:['তুমি যেমন, তেমনই সুন্দর।','নিজেরে ভালোবাসো,\nবাকিডা ঠিক হইয়া যাইবো।','মেয়েরা নরম হইতে পারে,\nকিন্তু দুর্বল না।','নিজের স্বপ্নের জন্য\nনিজেই দাঁড়াও।','হাসিটা ধইরা রাখো,\nএইডাই তোমার সবচেয়ে সুন্দর গয়না।']};
+const HIND='"Hind Siliguri","Noto Sans Bengali",sans-serif',TIRO='"Tiro Bangla","Hind Siliguri",serif';
+const T={
+sad:{font:TIRO,w:'400',ink:'#eef1ff',acc:'#9fb4ff',al:'center'},
+funny:{font:HIND,w:'700',ink:'#ffffff',acc:'#ffe03d',al:'center'},
+sarcasm:{font:HIND,w:'500',ink:'#ffffff',acc:'#ff3b3b',al:'left'},
+minimal:{font:HIND,w:'500',ink:'#1c1b22',acc:'#d6245f',al:'left'},
+news:{font:HIND,w:'700',ink:'#ffffff',acc:'#e11d2e',al:'left'},
+gold:{font:TIRO,w:'400',ink:'#f3dc9a',acc:'#d4af37',al:'center'},
+fbpost:{font:HIND,w:'500',ink:'#050505',acc:'#1877f2',al:'left'},
+fbg:{font:HIND,w:'700',ink:'#ffffff',acc:'#ffffff',al:'center'},
+girl:{font:HIND,w:'500',ink:'#4a1d3f',acc:'#c2185b',al:'center'}};
+const PAL={fbg:[['#7b2ff7','#f107a3'],['#0099f7','#00c9a7'],['#ff512f','#f09819'],['#11998e','#38ef7d'],['#232526','#414345']],
+girl:[['#ffc3d8','#d9b8ff'],['#ffd6e0','#ffe6c7'],['#e8c6ff','#c6e2ff'],['#ffb6c9','#ff8fb1'],['#fbe3ec','#f3c6dc']]};
+
+function rnd(i){const x=Math.sin(i*127.1)*43758.5453;return x-Math.floor(x)}
+function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,r):ctx.rect(x,y,w,h)}
+function wrap(text,maxW){const out=[];text.split('\n').forEach(p=>{let line='';p.split(' ').forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){out.push(line);line=w}else line=t});out.push(line)});return out}
+function heart(x,y,s){ctx.beginPath();ctx.moveTo(x,y+s*.3);ctx.bezierCurveTo(x,y,x-s*.5,y,x-s*.5,y+s*.3);ctx.bezierCurveTo(x-s*.5,y+s*.65,x,y+s*.8,x,y+s);ctx.bezierCurveTo(x,y+s*.8,x+s*.5,y+s*.65,x+s*.5,y+s*.3);ctx.bezierCurveTo(x+s*.5,y,x,y,x,y+s*.3);ctx.fill()}
+function cover(im,x,y,w,h,z){const s=Math.max(w/im.width,h/im.height)*(z||1),iw=im.width*s,ih=im.height*s;ctx.drawImage(im,x+(w-iw)/2,y+(h-ih)/2,iw,ih)}
+function pill(txt,W,y,fill,stroke,ink){ctx.font='700 34px '+HIND;ctx.textAlign='center';const w=ctx.measureText(txt).width+70,x=(W-w)/2;
+ctx.fillStyle=fill;rr(x,y,w,62,31);ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=2.5;ctx.stroke();ctx.fillStyle=ink;ctx.fillText(txt,W/2,y+42)}
+function wmark(W,H,txt,dark){ctx.save();ctx.translate(W/2,H/2);ctx.rotate(-.5);ctx.font='700 40px '+HIND;ctx.textAlign='left';const w=ctx.measureText(txt).width+120;ctx.fillStyle=dark?'rgba(30,20,40,.11)':'rgba(255,255,255,.14)';
+for(let r=-14;r<=14;r++){for(let x=-W*1.4+(r&1)*w/2;x<W*1.4;x+=w)ctx.fillText(txt,x,r*130)}ctx.restore()}
+function fnt(t){const f=$('font').value;return f==='hind'?HIND:f==='tiro'?TIRO:t.font}
+
+function drawFB(W,H,t){
+ctx.fillStyle='#f0f2f5';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';rr(36,36,W-72,H-72,28);ctx.fill();
+const ax=130,ay=134,r=56;
+ctx.save();ctx.beginPath();ctx.arc(ax,ay,r,0,7);ctx.clip();
+if(img)cover(img,ax-r,ay-r,2*r,2*r);else{ctx.fillStyle='#1877f2';ctx.fillRect(ax-r,ay-r,2*r,2*r);ctx.fillStyle='#fff';ctx.font='700 60px '+HIND;ctx.textAlign='center';ctx.fillText('ফ',ax,ay+20)}
+ctx.restore();
+ctx.textAlign='left';ctx.fillStyle='#050505';ctx.font='700 42px '+HIND;ctx.fillText($('author').value.trim()||'আপনার নাম',210,126);
+ctx.fillStyle='#65676b';ctx.font='500 30px '+HIND;ctx.fillText(($('grp').value.trim()||'গ্রুপ')+' · পাবলিক',210,172);
+const size=+$('size').value*.8,lh=size*1.4;
+ctx.font=(fnt(t)===TIRO?'400 ':'500 ')+size+'px '+fnt(t);ctx.fillStyle='#050505';
+const lines=wrap($('txt').value.trim()||' ',W-72-90);
+lines.forEach((ln,i)=>ctx.fillText(ln,76,236+size+i*lh));
+const top=236+lines.length*lh+size*.4,bot=H-216;
+if(img&&bot-top>160){ctx.save();rr(76,top,W-152,bot-top,18);ctx.clip();cover(img,76,top,W-152,bot-top,$('zoom').value/100);ctx.restore()}
+ctx.fillStyle='#1877f2';ctx.beginPath();ctx.arc(92,H-170,17,0,7);ctx.fill();
+ctx.fillStyle='#f02849';ctx.beginPath();ctx.arc(118,H-170,17,0,7);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();
+ctx.fillStyle='#65676b';ctx.font='500 30px '+HIND;ctx.fillText('1.3K',150,H-159);
+ctx.fillStyle='#ced0d4';ctx.fillRect(76,H-136,W-152,2);
+ctx.font='700 34px '+HIND;ctx.textAlign='center';
+['পছন্দ','মন্তব্য','শেয়ার'].forEach((s,i)=>ctx.fillText(s,36+(W-72)*(1+2*i)/6,H-80))}
+
+function draw(){
+const W=1080,H=+$('ratio').value,t=T[theme];
+c.width=W;c.height=H;
+
+const d=theme==='girl'?0:$('dark').value/100,zm=$('zoom').value/100,P=PAL[theme]&&PAL[theme][pal];
+const ph=theme==='minimal'?Math.round(H*.44):H;
+const bg=ctx.createLinearGradient(0,0,W,H);
+const BG={sad:['#1d2a4d','#0a0f1f'],funny:['#ff4f8b','#ffb52e'],sarcasm:['#2a2a2e','#0c0c0e'],minimal:['#f5f2ec','#f5f2ec'],news:['#3a3f4a','#16181d'],gold:['#14213d','#050914']};
+const B=P||BG[theme];bg.addColorStop(0,B[0]);bg.addColorStop(1,B[1]);
+ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ctx.save();ctx.beginPath();ctx.rect(0,0,W,ph);ctx.clip();
+if(img)cover(img,0,0,W,ph,zm);
+if(theme==='sad'||theme==='sarcasm'||theme==='gold'){ctx.globalCompositeOperation='saturation';ctx.globalAlpha=theme==='sarcasm'?1:.75;ctx.fillStyle='#808080';ctx.fillRect(0,0,W,ph);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1}
+const ov=ctx.createLinearGradient(0,0,0,ph);
+const OV={sad:['rgba(20,35,90,.55)','rgba(5,8,25,.88)'],funny:['rgba(255,60,140,.30)','rgba(255,190,40,.30)'],sarcasm:['rgba(0,0,0,.45)','rgba(0,0,0,.75)'],gold:['rgba(10,20,50,.6)','rgba(5,9,20,.85)']};
+if(OV[theme]){ov.addColorStop(0,OV[theme][0]);ov.addColorStop(1,OV[theme][1]);ctx.fillStyle=ov;ctx.fillRect(0,0,W,ph)}
+if(P&&img){const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,P[0]);g.addColorStop(1,P[1]);ctx.globalAlpha=.8;ctx.fillStyle=g;ctx.fillRect(0,0,W,ph);ctx.globalAlpha=1}
+ctx.fillStyle='rgba(0,0,0,'+d+')';ctx.fillRect(0,0,W,ph);
+ctx.restore();
+
+if(theme==='sad'){ctx.strokeStyle='rgba(190,210,255,.22)';ctx.lineWidth=2;
+for(let i=0;i<70;i++){const x=rnd(i)*W,y=rnd(i+99)*H,l=30+rnd(i+7)*50;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-l*.25,y+l);ctx.stroke()}}
+if(theme==='funny'){ctx.globalAlpha=.55;for(let i=0;i<26;i++){ctx.fillStyle=['#fff','#2de2e6','#7b2ff7','#ffe03d'][i%4];ctx.beginPath();ctx.arc(rnd(i+3)*W,rnd(i+50)*H,6+rnd(i)*12,0,7);ctx.fill()}ctx.globalAlpha=1}
+if(theme==='girl'){ctx.fillStyle='#fff';ctx.globalAlpha=.4;for(let i=0;i<14;i++)heart(rnd(i+5)*W,rnd(i+30)*H,24+rnd(i)*50);ctx.globalAlpha=1}
+if(theme==='gold'){ctx.strokeStyle=t.acc;ctx.lineWidth=4;ctx.strokeRect(46,46,W-92,H-92);ctx.lineWidth=1.5;ctx.strokeRect(66,66,W-132,H-132)}
+if(theme!=='minimal'&&theme!=='girl'){const v=ctx.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,H*.8);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.35)');ctx.fillStyle=v;ctx.fillRect(0,0,W,H)}
+if(theme==='sad'||theme==='sarcasm'){ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=2;rr(40,40,W-80,H-80,28);ctx.stroke()}
+if(theme==='funny'){ctx.strokeStyle='#fff';ctx.lineWidth=12;rr(28,28,W-56,H-56,40);ctx.stroke()}
+if(theme==='girl'){ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=8;ctx.lineCap='round';ctx.setLineDash([2,22]);rr(36,36,W-72,H-72,44);ctx.stroke();ctx.setLineDash([])}
+let top=0;
+if(theme==='news'){top=Math.round(H*.5);ctx.fillStyle='rgba(10,10,12,.94)';ctx.fillRect(0,top,W,H-top);ctx.fillStyle=t.acc;ctx.fillRect(0,top,W,8);
+ctx.fillRect(80,top-34,230,68);ctx.fillStyle='#fff';ctx.font='700 38px '+HIND;ctx.textAlign='center';ctx.fillText('ব্রেকিং',195,top+14);top+=60}
+if(theme==='minimal')top=ph+20;
+
+if($('wm').checked&&$('grp').value.trim())wmark(W,H,$('grp').value.trim(),theme==='minimal'||theme==='girl');
+const F=fnt(t),ao=$('align').value,al=ao==='auto'?t.al:ao;
+const size=+$('size').value,padX=theme==='gold'||theme==='girl'?150:110;
+ctx.font=t.w+' '+size+'px '+F;
+const lines=wrap($('txt').value.trim()||' ',W-padX*2);
+const lh=size*1.45,name=$('author').value.trim(),bh=lines.length*lh,bottom=H-150;
+const y0=top+(bottom-top-bh)/2+(theme==='sarcasm'?20:0);
+const ax=al==='center'?W/2:padX;
+if(theme==='girl'){ctx.fillStyle='rgba(255,255,255,.55)';rr(70,y0-50,W-140,bh+70,40);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle=t.acc;heart(W/2,y0-84,48)}
+ctx.textAlign=al;ctx.textBaseline='alphabetic';
+ctx.save();
+if(theme==='funny'){ctx.translate(W/2,H/2);ctx.rotate(-.045);ctx.translate(-W/2,-H/2)}
+if(theme==='sarcasm'||theme==='minimal'){ctx.font='700 220px '+TIRO;ctx.fillStyle=t.acc;ctx.globalAlpha=.9;ctx.fillText('\u201C',ax,y0+70);ctx.globalAlpha=1}
+ctx.font=t.w+' '+size+'px '+F;
+lines.forEach((ln,i)=>{const y=y0+i*lh+size;
+if(theme==='sad'||theme==='gold'){ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=18}
+if(theme==='fbg'){ctx.shadowColor='rgba(0,0,0,.25)';ctx.shadowBlur=14}
+if(theme==='funny'){ctx.lineJoin='round';ctx.lineWidth=size*.2;ctx.strokeStyle='#1a1030';ctx.strokeText(ln,ax,y);ctx.fillStyle=i%2?t.acc:t.ink}
+else ctx.fillStyle=t.ink;
+ctx.fillText(ln,ax,y)});
+ctx.shadowBlur=0;
+
+ctx.restore();
+
+if(name){ctx.save();ctx.translate(W-20,H/2);ctx.rotate(-Math.PI/2);ctx.font='500 22px '+HIND;ctx.textAlign='center';ctx.globalAlpha=.8;ctx.fillStyle=(theme==='minimal'||theme==='girl')?t.ink:'#fff';ctx.fillText('লেখক · '+name,0,0);ctx.restore()}
+const g=$('grp').value.trim();
+if($('showgrp').checked&&g){const y=H-120;
+if(theme==='minimal')pill(g,W,y,'#1c1b22','#1c1b22','#fff');
+else if(theme==='girl')pill(g,W,y,'rgba(255,255,255,.7)',t.acc,t.ink);
+else pill(g,W,y,theme==='funny'?'#1a1030':'rgba(0,0,0,.55)',t.acc,'#fff')}
+}
+
+function pick(){const a=BANK[theme];let i;do{i=Math.floor(Math.random()*a.length)}while(i===last&&a.length>1);last=i;$('txt').value=a[i]}
+function swatches(){const s=$('sw'),L=PAL[theme];s.style.display=L?'flex':'none';if(!L)return;s.innerHTML='';
+L.forEach((p,i)=>{const b=document.createElement('button');b.style.background='linear-gradient(135deg,'+p[0]+','+p[1]+')';b.setAttribute('aria-label','রঙ '+(i+1));b.setAttribute('aria-pressed',i===pal);b.onclick=()=>{pal=i;swatches();draw()};s.appendChild(b)})}
+function setTheme(n){theme=n;pal=0;last=-1;if(auto)pick();
+document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===n));swatches();draw()}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>setTheme(b.dataset.t));
+$('auto').onclick=()=>{auto=true;pick();draw()};
+$('txt').addEventListener('input',()=>{auto=false;draw()});
+['size','dark','zoom','ratio','grp','showgrp','wm','font','align'].forEach(i=>$(i).addEventListener('input',draw));
+$('author').addEventListener('input',()=>{try{localStorage.setItem('cm_author',$('author').value)}catch(e){}draw()});
+try{const a=localStorage.getItem('cm_author');if(a)$('author').value=a}catch(e){}
+$('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{img=im;draw()};im.src=r.result};r.readAsDataURL(f)};
+function modal(){$('out').src=c.toDataURL('image/png');$('modal').style.display='flex'}
+$('dl').onclick=()=>c.toBlob(async b=>{
+if(!dlcap){modal();return}
+try{await dlcap.save({filename:'fua-furin-card.png',data:b})}catch(e){if(!e||e.code!=='declined')modal()}},'image/png');
+$('share').onclick=()=>c.toBlob(async b=>{
+const f=new File([b],'card.png',{type:'image/png'});
+try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){if(e&&e.name==='AbortError')return}
+modal()},'image/png');
+$('close').onclick=()=>$('modal').style.display='none';
+(async()=>{try{if(window.claude&&claude.use)dlcap=await claude.use('downloads')}catch(e){}})();
+setTheme('sad');
+Promise.all([document.fonts.load('400 40px "Tiro Bangla"','আমরা'),document.fonts.load('700 40px "Hind Siliguri"','আমরা'),document.fonts.load('500 40px "Hind Siliguri"','আমরা')]).then(draw).catch(()=>{});
+</script>
+</body>
+</html>
