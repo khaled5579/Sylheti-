@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ফুয়া ফুড়িন কার্ড মেকার</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;700&family=Tiro+Bangla&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;700&family=Tiro+Bangla&family=Baloo+Da+2:wght@500;700&family=Galada&family=Atma:wght@500;700&family=Noto+Serif+Bengali:wght@500;700&family=Anek+Bangla:wght@500;700&family=Mina:wght@400;700&display=swap">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 --bg:#f0f2f5;--panel:#fff;--ink:#1c1e21;--mute:#65676b;--line:#dadde1;--acc:#1877f2;--accInk:#fff}
@@ -23,7 +23,7 @@ label:first-child{margin-top:0}
 textarea,input[type=text],select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px}
 textarea{min-height:96px;resize:vertical;font-size:1.05rem}
 input[type=range]{width:100%;accent-color:var(--acc)}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:320px;overflow-y:auto;padding:2px}
 .tabs button{font:inherit;font-weight:700;padding:11px 4px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
 .tabs button[aria-pressed=true]{border-color:var(--acc);background:var(--acc);color:var(--accInk)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -38,6 +38,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:12px;z-index:5;overflow:auto}
 #modal img{max-width:100%;max-height:75vh;border-radius:8px}
 #modal p{color:#fff;margin:0;text-align:center}
+input[type=color]{width:100%;height:44px;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:3px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -52,10 +53,20 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 <div class="tabs" id="tabs">
 <button data-t="sad">Sad</button><button data-t="funny">Funny</button><button data-t="sarcasm">Sarcasm</button>
 <button data-t="girl">মেয়েদের</button><button data-t="minimal">Minimal</button><button data-t="news">News</button>
-<button data-t="gold">Gold</button>
+<button data-t="gold">Gold</button><button data-t="custom">কাস্টম</button>
 </div>
 <label>ব্যাকগ্রাউন্ড রঙ</label>
 <div class="sw" id="sw"></div>
+<div id="cust" style="display:none">
+<label>তৈরি রঙের সেট</label><div class="sw" id="qp" style="display:flex;flex-wrap:wrap"></div>
+<div class="row"><div><label for="c_b1">ব্যাকগ্রাউন্ড রঙ ১</label><input id="c_b1" type="color" value="#1f2937"></div><div><label for="c_b2">ব্যাকগ্রাউন্ড রঙ ২</label><input id="c_b2" type="color" value="#111827"></div></div>
+<div class="row"><div><label for="c_ink">লেখার রঙ</label><input id="c_ink" type="color" value="#ffffff"></div><div><label for="c_acc">সাজের রঙ (ফ্রেম, দাগ)</label><input id="c_acc" type="color" value="#fbbf24"></div></div>
+<div class="row"><div><label for="c_fr">ফ্রেম</label><select id="c_fr"><option value="none">নাই</option><option value="frame">সাধারণ</option><option value="dbl">ডাবল</option><option value="round" selected>গোল কোণা</option><option value="neon">নিয়ন</option><option value="corner">কোণা</option></select></div><div><label for="c_pt">প্যাটার্ন</label><select id="c_pt"><option value="none">নাই</option><option value="dots">ফোঁটা</option><option value="stripe">তির্যক দাগ</option><option value="circle">বড় বৃত্ত</option></select></div></div>
+<div class="row"><div><label for="c_fx">লেখার ইফেক্ট</label><select id="c_fx"><option value="normal">সাধারণ</option><option value="shadow">ছায়া</option><option value="glow">গ্লো</option><option value="outline">আউটলাইন</option></select></div><div><label for="c_pn">লেখার প্যানেল</label><select id="c_pn"><option value="none">নাই</option><option value="glass">কাচের মতো</option><option value="solid">স্টিকার বক্স</option></select></div></div>
+<div class="row"><div><label for="c_w">লেখা</label><select id="c_w"><option value="500">পাতলা</option><option value="700" selected>মোটা</option></select></div><label class="chk"><input id="c_gr" type="checkbox"> ছবি সাদা-কালো</label></div>
+<label for="c_oa">ছবির উপর রঙের পর্দা</label><input id="c_oa" type="range" min="0" max="100" value="78">
+</div>
+
 <label for="txt">পোস্টের লেখা (অটো বা নিজে লেখো)</label>
 <textarea id="txt"></textarea>
 <button class="btn alt" id="auto" style="margin-top:8px">নতুন অটো লেখা</button>
@@ -64,13 +75,15 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 <label for="file">গ্রুপের ছবি (ব্যাকগ্রাউন্ড)</label>
 <input id="file" type="file" accept="image/*">
 <div class="row">
-<div><label for="font">ফন্ট</label><select id="font"><option value="auto">ডিজাইন অনুযায়ী</option><option value="hind">সাধারণ</option><option value="tiro">বইয়ের মতো</option></select></div>
+<div><label for="font">ফন্ট</label><select id="font"><option value="auto">ডিজাইন অনুযায়ী</option><option value="hind">সাধারণ (Hind)</option><option value="tiro">বইয়ের মতো</option><option value="baloo">গোলগাল (Baloo)</option><option value="galada">হাতের লেখা (Galada)</option><option value="atma">মজার (Atma)</option><option value="serif">গম্ভীর (Noto Serif)</option><option value="anek">আধুনিক (Anek)</option><option value="mina">নরম (Mina)</option></select></div>
 <div><label for="align">লেখা সাজানো</label><select id="align"><option value="auto">ডিজাইন অনুযায়ী</option><option value="center">মাঝখানে</option><option value="left">বাম দিকে</option></select></div>
 </div>
+<div class="row"><div><label for="fx">লেখার স্টাইল</label><select id="fx"><option value="auto">ডিজাইন অনুযায়ী</option><option value="outline">আউটলাইন</option><option value="shadow">হার্ড ছায়া</option><option value="glow">গ্লো</option><option value="marker">হাইলাইট ব্যাকগ্রাউন্ড</option><option value="line">নিচে দাগ</option></select></div><div><label for="logo">লোগো (ইচ্ছা হলে)</label><input id="logo" type="file" accept="image/*"></div></div>
 <div class="row">
 <div><label for="ratio">সাইজ</label><select id="ratio"><option value="1080">Square 1:1</option><option value="1350">Portrait 4:5</option></select></div>
-<div><label for="grp">গ্রুপের নাম</label><input id="grp" type="text" value="আমরা সিলেটি ফুয়া ফুড়িন"></div>
+<div><label for="grp">গ্রুপের নাম</label><input id="grp" type="text" value="💁‍♀️আমরা সিলেটি ফুয়া ফুড়িন🙋‍♂️"></div>
 </div>
+<label class="chk"><input id="btop" type="checkbox" checked> উপরে লোগো / গ্রুপের নাম দেখাও</label>
 <label class="chk"><input id="showgrp" type="checkbox" checked> নিচে গ্রুপের নাম দেখাও</label>
 <label class="chk"><input id="wm" type="checkbox" checked> সারা কার্ডে গ্রুপের নাম (কেটে অন্য গ্রুপে দেওয়া যাবে না)</label>
 <label for="size">লেখার সাইজ</label><input id="size" type="range" min="40" max="130" value="76">
@@ -117,7 +130,8 @@ function pill(txt,W,y,fill,stroke,ink){ctx.font='700 34px '+HIND;ctx.textAlign='
 ctx.fillStyle=fill;rr(x,y,w,62,31);ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=2.5;ctx.stroke();ctx.fillStyle=ink;ctx.fillText(txt,W/2,y+42)}
 function wmark(W,H,txt,dark){ctx.save();ctx.translate(W/2,H/2);ctx.rotate(-.5);ctx.font='700 40px '+HIND;ctx.textAlign='left';const w=ctx.measureText(txt).width+120;ctx.fillStyle=dark?'rgba(30,20,40,.11)':'rgba(255,255,255,.14)';
 for(let r=-14;r<=14;r++){for(let x=-W*1.4+(r&1)*w/2;x<W*1.4;x+=w)ctx.fillText(txt,x,r*130)}ctx.restore()}
-function fnt(t){const f=$('font').value;return f==='hind'?HIND:f==='tiro'?TIRO:t.font}
+const FM={hind:HIND,tiro:TIRO,baloo:'"Baloo Da 2",'+HIND,galada:'Galada,'+HIND,atma:'Atma,'+HIND,serif:'"Noto Serif Bengali",'+TIRO,anek:'"Anek Bangla",'+HIND,mina:'Mina,'+HIND};
+function fnt(t){return FM[$('font').value]||t.font}
 
 function drawFB(W,H,t){
 ctx.fillStyle='#f0f2f5';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';rr(36,36,W-72,H-72,28);ctx.fill();
@@ -143,6 +157,7 @@ ctx.font='700 34px '+HIND;ctx.textAlign='center';
 function draw(){
 const W=1080,H=+$('ratio').value,t=T[theme];
 c.width=W;c.height=H;
+if(theme==='custom'){drawPre(W,H,customP());return}
 
 const d=theme==='girl'?0:$('dark').value/100,zm=$('zoom').value/100,P=PAL[theme]&&PAL[theme][pal];
 const ph=theme==='minimal'?Math.round(H*.44):H;
@@ -175,11 +190,12 @@ ctx.fillRect(80,top-34,230,68);ctx.fillStyle='#fff';ctx.font='700 38px '+HIND;ct
 if(theme==='minimal')top=ph+20;
 
 if($('wm').checked&&$('grp').value.trim())wmark(W,H,$('grp').value.trim(),theme==='minimal'||theme==='girl');
+brand(W,H,theme==='minimal'||theme==='girl'?t.ink:'#fff');
 const F=fnt(t),ao=$('align').value,al=ao==='auto'?t.al:ao;
 const size=+$('size').value,padX=theme==='gold'||theme==='girl'?150:110;
 ctx.font=t.w+' '+size+'px '+F;
 const lines=wrap($('txt').value.trim()||' ',W-padX*2);
-const lh=size*1.45,name=$('author').value.trim(),bh=lines.length*lh,bottom=H-150;
+const lh=size*1.45,name=$('author').value.trim(),bh=lines.length*lh+(name?80:0),bottom=H-150;
 const y0=top+(bottom-top-bh)/2+(theme==='sarcasm'?20:0);
 const ax=al==='center'?W/2:padX;
 if(theme==='girl'){ctx.fillStyle='rgba(255,255,255,.55)';rr(70,y0-50,W-140,bh+70,40);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle=t.acc;heart(W/2,y0-84,48)}
@@ -193,12 +209,12 @@ if(theme==='sad'||theme==='gold'){ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlu
 if(theme==='fbg'){ctx.shadowColor='rgba(0,0,0,.25)';ctx.shadowBlur=14}
 if(theme==='funny'){ctx.lineJoin='round';ctx.lineWidth=size*.2;ctx.strokeStyle='#1a1030';ctx.strokeText(ln,ax,y);ctx.fillStyle=i%2?t.acc:t.ink}
 else ctx.fillStyle=t.ink;
-ctx.fillText(ln,ax,y)});
+fxLine(ln,ax,y,size,al,t.acc,t.ink);ctx.fillText(ln,ax,y)});
 ctx.shadowBlur=0;
+if(name){ctx.font='700 42px '+HIND;ctx.fillStyle=theme==='funny'?'#1a1030':t.acc;ctx.fillText('\u2014 '+name,ax,y0+lines.length*lh+34)}
 
 ctx.restore();
 
-if(name){ctx.save();ctx.translate(W-20,H/2);ctx.rotate(-Math.PI/2);ctx.font='500 22px '+HIND;ctx.textAlign='center';ctx.globalAlpha=.8;ctx.fillStyle=(theme==='minimal'||theme==='girl')?t.ink:'#fff';ctx.fillText('লেখক · '+name,0,0);ctx.restore()}
 const g=$('grp').value.trim();
 if($('showgrp').checked&&g){const y=H-120;
 if(theme==='minimal')pill(g,W,y,'#1c1b22','#1c1b22','#fff');
@@ -206,15 +222,75 @@ else if(theme==='girl')pill(g,W,y,'rgba(255,255,255,.7)',t.acc,t.ink);
 else pill(g,W,y,theme==='funny'?'#1a1030':'rgba(0,0,0,.55)',t.acc,'#fff')}
 }
 
-function pick(){const a=BANK[theme];let i;do{i=Math.floor(Math.random()*a.length)}while(i===last&&a.length>1);last=i;$('txt').value=a[i]}
+function drawPre(W,H,p){
+const F=fnt({font:p.f==='t'?TIRO:HIND}),ao=$('align').value,al=ao==='auto'?p.al:ao,a=p.acc;
+const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,p.bg[0]);g.addColorStop(1,p.bg[1]);
+ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+if(img){ctx.save();cover(img,0,0,W,H,$('zoom').value/100);
+if(p.gr){ctx.globalCompositeOperation='saturation';ctx.globalAlpha=p.gr;ctx.fillStyle='#808080';ctx.fillRect(0,0,W,H);ctx.globalCompositeOperation='source-over'}
+ctx.globalAlpha=p.oa!=null?p.oa:(p.lt?.88:.78);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;
+if(!p.lt){ctx.fillStyle='rgba(0,0,0,'+$('dark').value/100+')';ctx.fillRect(0,0,W,H)}ctx.restore()}
+ctx.save();ctx.strokeStyle=a;ctx.fillStyle=a;
+p.dc.forEach(k=>{
+if(k==='frame'){ctx.lineWidth=5;ctx.strokeRect(48,48,W-96,H-96)}
+else if(k==='dbl'){ctx.lineWidth=4;ctx.strokeRect(46,46,W-92,H-92);ctx.lineWidth=1.5;ctx.strokeRect(66,66,W-132,H-132)}
+else if(k==='round'){ctx.globalAlpha=.5;ctx.lineWidth=3;rr(40,40,W-80,H-80,36);ctx.stroke()}
+else if(k==='neon'){ctx.shadowColor=a;ctx.shadowBlur=30;ctx.lineWidth=6;rr(50,50,W-100,H-100,30);ctx.stroke();ctx.shadowBlur=0}
+else if(k==='corner'){ctx.lineWidth=8;[[60,60,1,1],[W-60,60,-1,1],[60,H-60,1,-1],[W-60,H-60,-1,-1]].forEach(([x,y,sx,sy])=>{ctx.beginPath();ctx.moveTo(x,y+sy*110);ctx.lineTo(x,y);ctx.lineTo(x+sx*110,y);ctx.stroke()})}
+else if(k==='dots'){ctx.globalAlpha=.14;for(let x=40;x<W;x+=54)for(let y=40;y<H;y+=54){ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill()}}
+else if(k==='stripe'){ctx.globalAlpha=.08;ctx.lineWidth=26;for(let i=-H;i<W;i+=90){ctx.beginPath();ctx.moveTo(i,H);ctx.lineTo(i+H,0);ctx.stroke()}}
+else if(k==='circle'){ctx.globalAlpha=.16;ctx.beginPath();ctx.arc(W*.85,H*.15,260,0,7);ctx.fill();ctx.beginPath();ctx.arc(W*.1,H*.9,200,0,7);ctx.fill()}
+else if(k==='band'){ctx.fillRect(0,0,W,H*.13)}
+ctx.globalAlpha=1});ctx.restore();
+const gn=$('grp').value.trim(),nm=$('author').value.trim();
+if($('wm').checked&&gn)wmark(W,H,gn,p.lt);
+brand(W,H,p.lt?p.ink:'#fff');
+const size=+$('size').value,padX=150;
+ctx.font=p.w+' '+size+'px '+F;
+const lines=wrap($('txt').value.trim()||' ',W-padX*2),lh=size*1.45,bh=lines.length*lh+(nm?80:0),top=p.dc.includes('band')?H*.13:0,y0=top+(H-150-top-bh)/2;
+const ax=al==='center'?W/2:padX,pw=W-140,ph=bh+90;
+if(p.pn==='solid'){ctx.fillStyle='#111';rr(84,y0-36,pw,ph,28);ctx.fill();ctx.fillStyle='#fff';rr(70,y0-50,pw,ph,28);ctx.fill();ctx.strokeStyle='#111';ctx.lineWidth=8;ctx.stroke()}
+else if(p.pn){ctx.fillStyle=p.lt?'rgba(255,255,255,.5)':'rgba(255,255,255,.14)';rr(70,y0-50,pw,ph,44);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;ctx.stroke()}
+if(p.dc.includes('bar')&&al==='left'){ctx.fillStyle=a;ctx.fillRect(padX-44,y0+8,10,bh)}
+ctx.textAlign=al;ctx.textBaseline='alphabetic';ctx.fillStyle=p.ink;
+if(p.gl){ctx.shadowColor=a;ctx.shadowBlur=26}else if(!p.lt||p.sh){ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=12}
+lines.forEach((ln,i)=>{const y=y0+i*lh+size;if(p.st){ctx.lineJoin='round';ctx.lineWidth=size*.16;ctx.strokeStyle=p.st;ctx.strokeText(ln,ax,y)}fxLine(ln,ax,y,size,al,a,p.ink);ctx.fillText(ln,ax,y)});ctx.shadowBlur=0;
+if(nm){ctx.font='700 42px '+HIND;ctx.fillStyle=a;ctx.fillText('\u2014 '+nm,ax,y0+lines.length*lh+34)}
+if(al==='center'&&!p.pn){ctx.fillStyle=a;ctx.fillRect(W/2-45,y0+bh+14,90,5)}
+if($('showgrp').checked&&gn)pill(gn,W,H-120,p.lt?'rgba(255,255,255,.75)':'rgba(0,0,0,.55)',a,p.lt?p.ink:'#fff')}
+const CIDS=['c_b1','c_b2','c_ink','c_acc','c_fr','c_pt','c_fx','c_pn','c_w','c_oa','c_gr'];
+const QP=[['গাঢ়','#111827','#1f2937','#ffffff','#fbbf24'],['হালকা','#fdfbf7','#efe9dd','#2b2118','#b3261e'],['গোলাপি','#ff7eb3','#e11d74','#ffffff','#ffe3ef'],['নীল','#0f4c75','#1b9aaa','#ffffff','#bbe1fa'],['সবুজ','#1b4332','#40916c','#f1ffe9','#b7e4c7'],['সূর্যাস্ত','#ff7e5f','#6a3093','#ffffff','#ffd166']];
+function saveC(){try{localStorage.setItem('cm_c',JSON.stringify(CIDS.map(i=>$(i).type==='checkbox'?$(i).checked:$(i).value)))}catch(e){}}
+try{const v=JSON.parse(localStorage.getItem('cm_c')||'null');if(v)CIDS.forEach((i,k)=>{if($(i).type==='checkbox')$(i).checked=!!v[k];else if(v[k]!=null)$(i).value=v[k]})}catch(e){}
+QP.forEach(q=>{const b=document.createElement('button');b.style.background='linear-gradient(135deg,'+q[1]+','+q[2]+')';b.setAttribute('aria-label',q[0]);b.title=q[0];b.onclick=()=>{['c_b1','c_b2','c_ink','c_acc'].forEach((id,k)=>$(id).value=q[k+1]);saveC();draw()};$('qp').appendChild(b)});
+CIDS.forEach(i=>$(i).addEventListener('input',()=>{saveC();draw()}));
+function lum(h){const n=parseInt(h.slice(1),16);return((n>>16)*299+((n>>8&255)*587)+(n&255)*114)/1000}
+function customP(){const v=i=>$(i).value,dc=[];if(v('c_fr')!=='none')dc.push(v('c_fr'));if(v('c_pt')!=='none')dc.push(v('c_pt'));const fx=v('c_fx');
+return{bg:[v('c_b1'),v('c_b2')],ink:v('c_ink'),acc:v('c_acc'),f:'h',w:v('c_w'),al:'center',dc,pn:v('c_pn')==='none'?0:v('c_pn'),gl:fx==='glow',sh:fx==='shadow',st:fx==='outline'?(lum(v('c_ink'))>150?'#000000':'#ffffff'):'',lt:(lum(v('c_b1'))+lum(v('c_b2')))/2>150,gr:$('c_gr').checked?1:0,oa:v('c_oa')/100}}
+let logo=null;
+function brand(W,H,col){if(!$('btop').checked)return;const n=$('grp').value.trim();if(!n&&!logo)return;
+ctx.save();ctx.font='700 38px '+HIND;const tw=n?ctx.measureText(n).width:0,lw=logo?72:0,gap=logo&&n?16:0,x0=(W-(tw+lw+gap))/2;
+if(logo){ctx.save();ctx.beginPath();ctx.arc(x0+36,98,36,0,7);ctx.clip();cover(logo,x0,62,72,72);ctx.restore();ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();ctx.arc(x0+36,98,36,0,7);ctx.stroke()}
+if(n){ctx.fillStyle=col;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=col==='#fff'?10:0;ctx.fillText(n,x0+lw+gap,112)}ctx.restore()}
+function fxLine(ln,x,y,size,al,acc,ink){const e=$('fx').value;if(e==='auto')return;
+const w=ctx.measureText(ln).width,x0=al==='center'?x-w/2:x;ctx.save();
+if(e==='outline'){ctx.lineJoin='round';ctx.lineWidth=size*.14;ctx.strokeStyle=lum(ink)>150?'#000':'#fff';ctx.strokeText(ln,x,y)}
+else if(e==='shadow'){ctx.fillStyle=lum(ink)>150?'rgba(0,0,0,.6)':'rgba(255,255,255,.7)';ctx.fillText(ln,x+size*.06,y+size*.06)}
+else if(e==='glow'){ctx.shadowColor=acc;ctx.shadowBlur=size*.5;ctx.fillText(ln,x,y);ctx.fillText(ln,x,y)}
+else if(e==='marker'){ctx.fillStyle=lum(ink)>150?'rgba(0,0,0,.72)':'rgba(255,255,255,.8)';ctx.fillRect(x0-16,y-size*.92,w+32,size*1.22)}
+else if(e==='line'){ctx.fillStyle=acc;ctx.fillRect(x0,y+size*.14,w,Math.max(4,size*.07))}
+ctx.restore()}
+$('logo').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{logo=im;draw()};im.src=r.result};r.readAsDataURL(f)};
+$('font').addEventListener('change',()=>{const f=FM[$('font').value];if(f)document.fonts.load('700 40px '+f.split(',')[0],'আমরা').then(draw).catch(()=>{})});
+function pick(){const a=BANK[theme]||BANK.sad;let i;do{i=Math.floor(Math.random()*a.length)}while(i===last&&a.length>1);last=i;$('txt').value=a[i]}
 function swatches(){const s=$('sw'),L=PAL[theme];s.style.display=L?'flex':'none';if(!L)return;s.innerHTML='';
 L.forEach((p,i)=>{const b=document.createElement('button');b.style.background='linear-gradient(135deg,'+p[0]+','+p[1]+')';b.setAttribute('aria-label','রঙ '+(i+1));b.setAttribute('aria-pressed',i===pal);b.onclick=()=>{pal=i;swatches();draw()};s.appendChild(b)})}
 function setTheme(n){theme=n;pal=0;last=-1;if(auto)pick();
-document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===n));swatches();draw()}
+document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===n));swatches();$('cust').style.display=theme==='custom'?'block':'none';draw()}
 document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>setTheme(b.dataset.t));
 $('auto').onclick=()=>{auto=true;pick();draw()};
 $('txt').addEventListener('input',()=>{auto=false;draw()});
-['size','dark','zoom','ratio','grp','showgrp','wm','font','align'].forEach(i=>$(i).addEventListener('input',draw));
+['size','dark','zoom','ratio','grp','showgrp','wm','font','align','fx','btop'].forEach(i=>$(i).addEventListener('input',draw));
 $('author').addEventListener('input',()=>{try{localStorage.setItem('cm_author',$('author').value)}catch(e){}draw()});
 try{const a=localStorage.getItem('cm_author');if(a)$('author').value=a}catch(e){}
 $('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{img=im;draw()};im.src=r.result};r.readAsDataURL(f)};
